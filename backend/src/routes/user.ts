@@ -1,82 +1,89 @@
 import { Hono } from 'hono'
-import  { PrismaClient} from '@prisma/client/edge'
-import {withAccelerate} from '@prisma/extension-accelerate'
-import { decode, sign, verify } from 'hono/jwt'
-import { signinInput, signupInput } from '@pkriya/blogapp-common';
+import { PrismaClient } from '@prisma/client/edge'
+import { withAccelerate } from '@prisma/extension-accelerate'
+import { sign } from 'hono/jwt'
+import { signinInput, signupInput } from '@pkriya/blogapp-common'
+import { hash, compare } from 'bcryptjs' // ✅ Secure password handling
 
 export const userRouter = new Hono<{
-    Bindings: {
-      DATABASE_URL: string,
-         JWT_SECRET: string
-    }
-    }>();
+  Bindings: {
+    DATABASE_URL: string
+    JWT_SECRET: string
+  }
+}>()
 
+// --------- SIGNUP ---------
 userRouter.post('/signup', async (c) => {
-  const body = await c.req.json();
-  const { success } = signupInput.safeParse(body);
-  if(!success){
-    c.status(411);
-    return c.json({
-      message: "wrong input types!"
-    })
-  }
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate())
-  
+  const body = await c.req.json()
+  const parsed = signupInput.safeParse(body)
 
-  const users = await prisma.user.findFirst({
-   
-    where: {
-      email: body.email,
-    }
-  });
-  if(users){
-    c.status(403);
-    return c.json({error: "user is already present, you can try another!"})
+  if (!parsed.success) {
+    c.status(400)
+    return c.json({ message: 'Invalid input' })
   }
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
+
+  const { email, password } = parsed.data
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email }
+  })
+
+  if (existingUser) {
+    c.status(409)
+    return c.json({ error: 'User already exists' })
+  }
+
+  const hashedPassword = await hash(password, 10)
+
   const user = await prisma.user.create({
     data: {
-      email: body.email,
-      password: body.password
+      email,
+      password: hashedPassword
     }
   })
-  
-  const token = await sign({id: user.id}, c.env.JWT_SECRET)
 
-  return c.json({
-    jwt: token
-  })
+  const token = await sign({ id: user.id }, c.env.JWT_SECRET)
 
+  return c.json({ jwt: token })
 })
 
-
-
+// --------- SIGNIN ---------
 userRouter.post('/signin', async (c) => {
-  const body = await c.req.json();
-  const { success } = signinInput.safeParse(body);
-  if(!success){
-    c.status(411);
-    return c.json({
-      message: "wrong input types!"
-    })
+  const body = await c.req.json()
+  const parsed = signinInput.safeParse(body)
+
+  if (!parsed.success) {
+    c.status(400)
+    return c.json({ message: 'Invalid input' })
   }
+
   const prisma = new PrismaClient({
-    datasourceUrl: c.env?.DATABASE_URL,
-    }).$extends(withAccelerate());
+    datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
 
-    const user = await prisma.user.findUnique({
-      where: {
-        email: body.email,
-        password: body.password
-      }
-    });
+  const { email, password } = parsed.data
 
-    if(!user){
-      c.status(403);
-      return c.json({error: "user not found"});
-    }
-    
-    const token  = await sign({id: user.id}, c.env.JWT_SECRET);
-    return c.json({jwt: token});
+  const user = await prisma.user.findUnique({
+    where: { email }
+  })
+
+  if (!user) {
+    c.status(401)
+    return c.json({ error: 'Invalid credentials' })
+  }
+
+  const passwordMatch = await compare(password, user.password)
+
+  if (!passwordMatch) {
+    c.status(401)
+    return c.json({ error: 'Invalid credentials' })
+  }
+
+  const token = await sign({ id: user.id }, c.env.JWT_SECRET)
+
+  return c.json({ jwt: token })
 })

@@ -1,15 +1,28 @@
 {
   "name": "@pkriya/blogapp-common",
   "version": "1.0.0",
+  "description": "Common utilities for the BlogApp project",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "blog",
+    "common",
+    "utils"
+  ],
+  "author": "Your Name",
   "license": "ISC",
-  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/blogapp-common.git"
+  },
   "dependencies": {
-    "zod": "^3.24.2"
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
   }
 }

@@ -1,27 +1,27 @@
 import z from "zod";
 export declare const signupInput: z.ZodObject<{
-    username: z.ZodString;
+    email: z.ZodString;
     password: z.ZodString;
     name: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    username: string;
+    email: string;
     password: string;
     name?: string | undefined;
 }, {
-    username: string;
+    email: string;
     password: string;
     name?: string | undefined;
 }>;
 export type SignupInput = z.infer<typeof signupInput>;
 export declare const signinInput: z.ZodObject<{
-    uesrname: z.ZodString;
+    email: z.ZodString;
     password: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    email: string;
     password: string;
-    uesrname: string;
 }, {
+    email: string;
     password: string;
-    uesrname: string;
 }>;
 export type SigninInput = z.infer<typeof signinInput>;
 export declare const createBlogInput: z.ZodObject<{

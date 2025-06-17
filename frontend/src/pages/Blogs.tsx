@@ -8,7 +8,7 @@ import { Blogskeleton } from "./Blogskeleton";
 export const Blogs = () => {
     const {loading, blogs} = useBlogs();
      if(loading){
-        return <div className="bg-white mt-24 gap-4  ">
+        return  <div className="bg-white mt-24 gap-4  ">
             <div className="mt-10 max-w-screen-lg w-full">      <Blogskeleton /></div>
             <div className="mt-10 max-w-screen-lg w-full">      <Blogskeleton /></div>
             <div className="mt-10 max-w-screen-lg w-full">      <Blogskeleton /></div>

@@ -1,44 +1,61 @@
 import { Link } from "react-router-dom";
 
 interface BlogcardProps {
-    authorName: string;
-    title: string;
-    content: string;
-    publishedDate: string;
-    id: string;
+  authorName: string;
+  title: string;
+  content: string;
+  publishedDate: string;
+  id: string;
 }
+
 export const Blogcard = ({
-     authorName,
-     title,
-     content,
-     publishedDate,
-     id
+  authorName,
+  title,
+  content,
+  publishedDate,
+  id,
 }: BlogcardProps) => {
+  return (
+    <Link to={`/blog/${id}`}>
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 my-4 mx-auto w-full max-w-3xl hover:shadow-lg transition-all duration-200">
+        {/* Author & Date */}
+        <div className="flex items-center text-sm text-gray-600 mb-2">
+          <Avatar name={authorName} size="medium" />
+          <span className="ml-2 font-medium">{authorName}</span>
+          <span className="mx-2">·</span>
+          <span className="text-gray-400">{publishedDate}</span>
+        </div>
 
-    return <Link to={`/blog/${id}`}> <div className="bg-white border-b border-slate-200 p-4 pb-4 w-screen max-w-screen-md cursor-pointer">
-           <div className="flex ">
-             <div className="flex justify-center flex-col"><Avatar name={authorName} /></div>
-            <div className="font-extralight pl-2 text-sm flex justify-center flex-col"> {authorName}  </div>
-            <div className="flex justify-center flex-col pl-2">. </div> 
-            <div className="pl-2 font-thin text-slate-500 text-sm flex justify-center flex-col"> {publishedDate} </div>
-           </div>
-           <div className="text-xl font-semibold pt-2">
-            {title}
-           </div>
-           <div className="text-md font-thin">
-            {content.slice(0, 100) + "..."}
-           </div>
-           <div className="text-slate-500 text-sm font-thin pt-4 ">
-            {`${Math.ceil(content.length / 100)} minutes read`}
-           </div> 
-    </div>
+        {/* Title */}
+        <div className="text-2xl font-bold text-gray-900 mb-2">
+          {title}
+        </div>
+
+        {/* Content Preview */}
+        <div className="text-gray-700 text-base">
+          {content.slice(0, 120) + "..."}
+        </div>
+
+        {/* Read Time */}
+        <div className="text-sm text-gray-500 mt-4">
+          {`${Math.ceil(content.length / 100)} min read`}
+        </div>
+      </div>
     </Link>
-}
+  );
+};
 
-export function Avatar ({name, size = "small"}: {name: string, size?: string}){
-    return <div className={`relative inline-flex items-center justify-center ${size == "small" ? "w-4 h-4" : "w-9 h-9"} overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600`}>
-        <span className={`${size== "small" ? "text-xs" : "text-base"} ${size== "small" ? "font-semibold" : "font-bold"} text-gray-600 dark:text-gray-300`}>
-            {name[0].toUpperCase()}
-        </span>
+export function Avatar({ name, size = "medium" }: { name: string; size?: "small" | "medium" | "big" }) {
+  const sizeClasses =
+    size === "small"
+      ? "w-6 h-6 text-xs"
+      : "w-8 h-8 text-sm";
+
+  return (
+    <div
+      className={`flex items-center justify-center ${sizeClasses} bg-gray-200 rounded-full text-gray-800 font-semibold`}
+    >
+      {name[0]?.toUpperCase()}
     </div>
+  );
 }
